@@ -1,0 +1,15 @@
+
+> my-v0-project@0.1.0 dev /Users/dong/Documents/codex/nanobanana-ai-clone
+> next dev -p 3000 -H 127.0.0.1
+
+ ⨯ Failed to start server
+Error: listen EPERM: operation not permitted 127.0.0.1:3000
+    at <unknown> (Error: listen EPERM: operation not permitted 127.0.0.1:3000) {
+  code: 'EPERM',
+  errno: -1,
+  syscall: 'listen',
+  address: '127.0.0.1',
+  port: 3000
+}
+[?25h
+ ELIFECYCLE  Command failed with exit code 1.
