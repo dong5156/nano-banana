@@ -14,7 +14,8 @@ export async function generateMetadata(): Promise<Metadata> {
   // Read cookie header in a resilient way across runtimes (Turbopack dev quirks)
   let cookieHeader = ""
   try {
-    const anyHdrs: any = headers()
+    // In Next 16+, `headers()` is a dynamic API that returns a Promise in some contexts.
+    const anyHdrs: any = await headers()
     if (anyHdrs && typeof anyHdrs.get === "function") {
       cookieHeader = anyHdrs.get("cookie") || ""
     } else if (anyHdrs && typeof anyHdrs === "object") {

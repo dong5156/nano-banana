@@ -3,9 +3,37 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import { useI18n } from "@/components/i18n-provider"
+import Link from "next/link"
+import * as React from "react"
+import { useRouter } from "next/navigation"
 
 export function Hero() {
   const { t } = useI18n()
+  const [isAuthed, setIsAuthed] = React.useState<boolean>(false)
+  const router = useRouter()
+
+  React.useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch("/api/auth/user", { cache: "no-store" })
+        const json = await res.json()
+        if (!cancelled) setIsAuthed(!!json?.user)
+      } catch {
+        if (!cancelled) setIsAuthed(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  // Avoid Next.js prefetch hitting /auth/login (which 302s to Google and can cause dev overlay "Failed to fetch")
+  const goLogin = React.useCallback(() => {
+    const url = new URL("/auth/login", window.location.origin)
+    url.searchParams.set("next", "/#editor")
+    window.location.href = url.toString()
+  }, [])
   return (
     <section className="relative py-20 md:py-32 overflow-hidden">
       {/* Decorative banana elements */}
@@ -24,10 +52,19 @@ export function Hero() {
           <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto text-balance">{t("hero.subtitle")}</p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-base">
-              {t("hero.primary")}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            {isAuthed ? (
+              <Link href="#editor">
+                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-base">
+                  {t("hero.primary")}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            ) : (
+              <Button onClick={goLogin} size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-base">
+                {t("hero.primary")}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            )}
             <Button size="lg" variant="outline" className="text-base bg-transparent">
               {t("hero.secondary")}
             </Button>
